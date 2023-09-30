@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
     // MARK: Properties
+    @State private var currentQuestionNumber = 1
+    @State private var hasGameFinished = false
     @State private var scoreValue = 0
     @State private var showingScore = false
     @State private var scoreTitle = ""
@@ -19,6 +21,7 @@ struct ContentView: View {
     // MARK: Body
     var body: some View {
         ZStack {
+            // Background Color
             RadialGradient(
                 stops: [
                     .init(color: Color(red: 0.1, green: 0.2, blue: 0.45), location: 0.3),
@@ -29,6 +32,9 @@ struct ContentView: View {
                 endRadius: 400
             )
             .ignoresSafeArea()
+            
+            
+            // All layout
             
             VStack {
                 Spacer()
@@ -67,6 +73,7 @@ struct ContentView: View {
                 .background(.regularMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 10.0))
                 
+                
                 Spacer()
                 Spacer()
                 
@@ -81,19 +88,35 @@ struct ContentView: View {
             .padding()
         }
         .alert(scoreTitle, isPresented: $showingScore) {
-            Button("Continue", action: askQuestion)
+            Button(hasGameFinished ? "Restart" : "Continue", action: hasGameFinished ? restartGame : askQuestion)
         } message: {
             Text("Your score is \(scoreValue)")
         }
     }
     
     func flagTapped(_ number: Int) {
+        currentQuestionNumber += 1
+        
         if number == correctAnswer {
             scoreTitle = "Correct"
             scoreValue += 1
+            if currentQuestionNumber > 8 {
+                hasGameFinished = true
+                scoreTitle = "Game is finished"
+            }
         } else {
-            scoreTitle = "Wrong"
+            scoreTitle = "Wrong! That's the flag of \(countries[number])"
+            
+            if scoreValue > 0 {
+                scoreValue -= 1
+            }
+            
+            if currentQuestionNumber > 8 {
+                hasGameFinished = true
+                scoreTitle = "Game is finished"
+            }
         }
+        
         
         showingScore = true
     }
@@ -101,6 +124,13 @@ struct ContentView: View {
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+    }
+    
+    func restartGame() {
+        hasGameFinished = false
+        scoreValue = 0
+        currentQuestionNumber = 1
+        askQuestion()
     }
 }
 
