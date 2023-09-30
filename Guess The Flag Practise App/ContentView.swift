@@ -61,10 +61,7 @@ struct ContentView: View {
                             flagTapped(number)
                         }
                     label: {
-                        Image(countries[number])
-                            .renderingMode(.original)
-                            .clipShape(RoundedRectangle(cornerRadius: 6.0))
-                            .shadow(radius: 10)
+                        FlatImageView(imageName: countries[number])
                     }
                     }
                 }
@@ -138,7 +135,15 @@ struct ContentView: View {
     ContentView()
 }
 
-
+struct FlatImageView: View {
+    var imageName: String
+    var body: some View {
+        Image(imageName)
+            .renderingMode(.original)
+            .clipShape(RoundedRectangle(cornerRadius: 6.0))
+            .shadow(radius: 10)
+    }
+}
 
 
 
