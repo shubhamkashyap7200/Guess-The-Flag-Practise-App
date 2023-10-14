@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
     // MARK: Properties
+    @State private var animating = false
+    @State private var animationAmount = 0.0
     @State private var currentQuestionNumber = 1
     @State private var hasGameFinished = false
     @State private var scoreValue = 0
@@ -59,10 +61,20 @@ struct ContentView: View {
                         Button{
                             // flag is tapped
                             flagTapped(number)
+                            
+                            withAnimation((number == correctAnswer && animating) ? .interpolatingSpring(stiffness: 10, damping: 20) : .easeIn) {
+                                animationAmount += 360
+                            }
                         }
                     label: {
                         FlatImageView(imageName: countries[number])
                     }
+                    .rotation3DEffect(
+                        .degrees((number == correctAnswer && animating) ? animationAmount : 0),
+                        axis: (x: 0.0, y: 1.0, z: 0.0)
+                    )
+                        
+                        
                     }
                 }
                 .frame(maxWidth: UIScreen.main.bounds.size.width - 40)
@@ -93,16 +105,20 @@ struct ContentView: View {
     
     func flagTapped(_ number: Int) {
         currentQuestionNumber += 1
+        animating = false
         
         if number == correctAnswer {
             scoreTitle = "Correct"
             scoreValue += 1
+            animating = true
+            
             if currentQuestionNumber > 8 {
                 hasGameFinished = true
                 scoreTitle = "Game is finished"
             }
         } else {
             scoreTitle = "Wrong! That's the flag of \(countries[number])"
+            animating = false
             
             if scoreValue > 0 {
                 scoreValue -= 1
